@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notre Faire-Part de Mariage</title>
-    <!-- Polices élégantes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -33,6 +32,54 @@
             overflow-x: hidden;
         }
 
+        /* --- ÉCRAN D'ENTRÉE POÉTIQUE (Introduction pour la musique) --- */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-cream);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+        
+        .intro-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--terracotta);
+            margin-bottom: 30px;
+            text-align: center;
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        .btn-enter {
+            background-color: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(193, 105, 79, 0.3);
+            transition: transform 0.3s;
+        }
+        .btn-enter:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- CONTENEUR PRINCIPAL --- */
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -40,6 +87,37 @@
             min-height: 100vh;
             box-shadow: 0 0 30px rgba(193, 105, 79, 0.08);
             position: relative;
+            z-index: 2;
+        }
+
+        /* --- ANIMATIONS DE FEUILLES / PÉTALES --- */
+        #leaves-container {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .leaf {
+            position: absolute;
+            display: block;
+            pointer-events: none;
+            font-size: 1.5rem;
+            user-select: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { top: 110%; transform: translateX(100px) rotate(360deg); opacity: 0; }
         }
 
         /* --- ÉCRAN D'ACCUEIL --- */
@@ -104,10 +182,19 @@
             box-shadow: 0 20px 40px rgba(193, 105, 79, 0.25);
         }
 
-        /* --- SECTIONS TEXTE --- */
+        /* --- SECTIONS TEXTE & EFFETS D'APPARITION --- */
         section {
             padding: 35px 24px;
             text-align: center;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        /* Classe CSS activée par JavaScript au défilement */
+        section.reveal {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         h2 {
@@ -124,6 +211,7 @@
             border-radius: 16px;
             padding: 24px;
             margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
         }
 
         .date-location p {
@@ -197,6 +285,10 @@
             font-family: 'Comfortaa', sans-serif;
             font-size: 0.9rem;
             color: var(--text-dark);
+            outline: none;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: var(--terracotta);
         }
 
         .radio-group {
@@ -223,7 +315,6 @@
             opacity: 0.9;
         }
 
-        /* Message de remerciement */
         #successMessage {
             display: none;
             color: var(--olive);
@@ -231,13 +322,45 @@
             margin-top: 20px;
             animation: fadeIn 0.5s ease forwards;
         }
+
+        /* --- BOUTON DE CONTRÔLE AUDIO --- */
+        #audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: white;
+            border: 1px solid var(--light-clay);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: none; /* Apparaît après l'intro */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
 
+    <div id="intro-overlay">
+        <div class="intro-title">Emma & Lucas</div>
+        <div style="font-size: 0.9rem; margin-bottom: 20px; color: var(--olive);">VOUS INVITENT À LEUR MARIAGE</div>
+        <button class="btn-enter" onclick="startExperience()">Ouvrir l'invitation ✨</button>
+    </div>
+
+    <div id="leaves-container"></div>
+
+    <audio id="wedding-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    </audio>
+
+    <button id="audio-control" onclick="toggleAudio()">🎵</button>
+
     <div class="container">
         
-        <!-- EN-TÊTE -->
         <header>
             <div class="subtitle">Ensemble, nous célébrons</div>
             <h1>Emma & Lucas</h1>
@@ -248,13 +371,11 @@
             </div>
         </header>
 
-        <!-- PHOTO PRINCIPALE -->
         <div class="photo-wrapper">
             <img class="marriage-photo" src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600" alt="Futurs Mariés">
         </div>
 
-        <!-- DATE & LIEU -->
-        <section>
+        <section class="reveal-section">
             <h2>Le Grand Jour</h2>
             <div class="card date-location">
                 <p>Nous avons hâte de vous retrouver le :</p>
@@ -266,8 +387,7 @@
             </div>
         </section>
 
-        <!-- NOTRE HISTOIRE -->
-        <section>
+        <section class="reveal-section">
             <h2>Notre Petite Histoire</h2>
             <div class="card">
                 <p class="story-text">
@@ -276,17 +396,14 @@
             </div>
         </section>
 
-        <!-- RSVP INTERACTIF -->
-        <section class="rsvp-section">
+        <section class="rsvp-section reveal-section">
             <button class="btn-rsvp" id="rsvpBtn" onclick="toggleForm()">Confirmer ma présence</button>
 
             <div class="rsvp-form-container" id="formContainer">
                 <div class="card">
-                    <!-- REMPLACEZ L'ACTION CI-DESSOUS PAR VOTRE LIEN FORMSPREE -->
                     <form id="rsvpForm" action="https://formspree.io/f/mlgvazrb" method="POST">
                         <div>
                             <label for="name">Votre Nom et Prénom</label>
-                            <!-- L'attribut 'name' est obligatoire pour que Formspree récupère la donnée -->
                             <input type="text" id="name" name="Nom Complet" required placeholder="Ex: Jean Dupont">
                         </div>
 
@@ -318,7 +435,6 @@
                 </div>
             </div>
             
-            <!-- Message de succès personnalisé sans recharger la page -->
             <div id="successMessage" class="card">
                 <p>✨ Merci ! Votre réponse a bien été enregistrée. ✨</p>
             </div>
@@ -326,8 +442,84 @@
 
     </div>
 
-    <!-- SCRIPT POUR L'INTERACTIVITÉ -->
     <script>
+        const music = document.getElementById('wedding-music');
+        const audioBtn = document.getElementById('audio-control');
+
+        // --- GESTION DE L'OUVERTURE ET DE LA MUSIQUE ---
+        function startExperience() {
+            // Masque l'écran d'intro
+            const overlay = document.getElementById('intro-overlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.visibility = 'hidden';
+                audioBtn.style.display = 'flex'; // Affiche le bouton de contrôle audio
+                triggerScrollReveal(); // Active la première animation
+            }, 1000);
+
+            // Lance la musique
+            music.play().catch(error => console.log("Lecture audio bloquée ou échouée:", error));
+            
+            // Lance la pluie de pétales
+            createPetals();
+        }
+
+        function toggleAudio() {
+            if (music.paused) {
+                music.play();
+                audioBtn.innerText = "🎵";
+            } else {
+                music.pause();
+                audioBtn.innerText = "🔇";
+            }
+        }
+
+        // --- GENERATEUR DE PÉTALES DE FLEURS ---
+        function createPetals() {
+            const container = document.getElementById('leaves-container');
+            const icons = ['🌸', '🍃', '🍂', '❀'];
+            const colors = ['#C1694F', '#E4A083', '#6E775F'];
+
+            setInterval(() => {
+                if (document.hidden) return; // Économise la batterie si l'onglet est masqué
+                
+                const petal = document.createElement('span');
+                petal.classList.add('leaf');
+                
+                // Personnalisation aléatoire
+                petal.innerText = icons[Math.floor(Math.random() * icons.length)];
+                petal.style.color = colors[Math.floor(Math.random() * colors.length)];
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.animationDuration = (Math.random() * 3 + 5) + 's'; // Entre 5s et 8s
+                petal.style.fontSize = (Math.random() * 10 + 12) + 'px';
+                
+                container.appendChild(petal);
+
+                // Nettoyage de l'élément après l'animation
+                setTimeout(() => {
+                    petal.remove();
+                }, 8000);
+            }, 600);
+        }
+
+        // --- ANIMATION APPARITION AU SCROLL ---
+        const sections = document.querySelectorAll('.reveal-section');
+
+        function triggerScrollReveal() {
+            const triggerBottom = window.innerHeight * 0.85;
+
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+
+                if (sectionTop < triggerBottom) {
+                    section.classList.add('reveal');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', triggerScrollReveal);
+
+        // --- ENVOI FORMULAIRE (FORMSPREE AJAX) ---
         function toggleForm() {
             const formContainer = document.getElementById('formContainer');
             const rsvpBtn = document.getElementById('rsvpBtn');
@@ -338,11 +530,12 @@
             } else {
                 formContainer.style.display = 'block';
                 rsvpBtn.innerText = "Fermer le formulaire";
-                formContainer.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    formContainer.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
         }
 
-        // Script AJAX pour envoyer les données à Formspree de manière invisible (sans quitter la page)
         const form = document.getElementById("rsvpForm");
         
         async function handleSubmit(event) {
@@ -357,22 +550,20 @@
             fetch(event.target.action, {
                 method: form.method,
                 body: data,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                headers: { 'Accept': 'application/json' }
             }).then(response => {
                 if (response.ok) {
                     status.style.display = "block";
                     form.reset();
                     document.getElementById('formContainer').style.display = 'none';
-                    document.getElementById('rsvpBtn').style.display = 'none'; // Cache le gros bouton
+                    document.getElementById('rsvpBtn').style.display = 'none';
                     status.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     response.json().then(data => {
                         if (Object.hasOwn(data, 'errors')) {
                             alert(data["errors"].map(error => error["message"]).join(", "));
                         } else {
-                            alert("Oups ! Il y a eu un problème lors de l'envoi. Veuillez réessayer.");
+                            alert("Oups ! Il y a eu un problème. Veuillez réessayer.");
                         }
                     })
                 }
